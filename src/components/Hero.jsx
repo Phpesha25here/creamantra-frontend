@@ -15,7 +15,7 @@ const Hero = () => {
       <div className="absolute inset-0 "></div>
 
       {/* Content */}
-      <div className="relative z-10 text-center text-#F8FAFC px-4">
+      <div className="relative z-10 text-center text-white px-4">
         <h1 className="text-4xl md:text-6xl font-bold mb-4">
           Welcome to Creamantra
         </h1>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { MapPin, Phone, Clock, Send, Twitter, Facebook } from "lucide-react";
+import { MapPin, Phone, Clock, Send } from "lucide-react";
+import { FaTwitter, FaFacebook } from "react-icons/fa";
 import axios from "axios";
 
 const Contact = () => {
