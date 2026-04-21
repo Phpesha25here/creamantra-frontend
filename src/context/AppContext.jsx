@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -38,7 +39,9 @@ const AppContextProvider = ({ children }) => {
 
       if (data?.success) {
         setUser(data.user);
-        setAdmin(data.user?.role === "admin" || data.user?.isAdmin === true);
+        setAdmin(
+          data.user?.role === "admin" || data.user?.isAdmin === true
+        );
       } else {
         setUser(null);
         setAdmin(false);
@@ -117,7 +120,6 @@ const AppContextProvider = ({ children }) => {
   useEffect(() => {
     const init = async () => {
       setLoadingAuth(true);
-
       try {
         await isAuth();
         await Promise.all([fetchCategories(), fetchMenus()]);
@@ -145,7 +147,10 @@ const AppContextProvider = ({ children }) => {
   }, [cart]);
 
   const cartCount =
-    cart?.items?.reduce((acc, item) => acc + (item.quantity || 0), 0) || 0;
+    cart?.items?.reduce(
+      (acc, item) => acc + (item.quantity || 0),
+      0
+    ) || 0;
 
   const value = {
     axios,
@@ -169,7 +174,11 @@ const AppContextProvider = ({ children }) => {
     fetchCartData,
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>
+      {children}
+    </AppContext.Provider>
+  );
 };
 
 export default AppContextProvider;
