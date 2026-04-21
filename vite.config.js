@@ -10,7 +10,5 @@ export default defineConfig({
   optimizeDeps: {
     include: ["react", "react-dom"],
   },
-  "dependencies": {
-  "recharts": "^2.x.x"
-}
+
 });
