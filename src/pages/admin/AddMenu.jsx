@@ -18,12 +18,12 @@ const AddMenu = () => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
-  // ================= INPUT CHANGE =================
+ 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ================= FILE CHANGE =================
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
 
@@ -38,14 +38,14 @@ const AddMenu = () => {
     }
   };
 
-  // ================= SUBMIT =================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       setLoading(true);
 
-      // ✅ FormData
+ 
       const sendData = new FormData();
       sendData.append("name", formData.name);
       sendData.append("price", formData.price);
@@ -58,7 +58,7 @@ const AddMenu = () => {
       if (data?.success) {
         toast.success(data.message);
 
-        await fetchMenus(); // 🔥 refresh menus
+        await fetchMenus();
 
         navigate("/admin/menus");
       } else {
@@ -82,7 +82,7 @@ const AddMenu = () => {
         onSubmit={handleSubmit}
         className="max-w-2xl w-full flex flex-col gap-5"
       >
-        {/* NAME */}
+        
         <div>
           <label className="block text-sm font-medium mb-2">
             Menu Name *
@@ -97,7 +97,7 @@ const AddMenu = () => {
           />
         </div>
 
-        {/* PRICE */}
+        
         <div>
           <label className="block text-sm font-medium mb-2">
             Menu Price *
@@ -112,7 +112,7 @@ const AddMenu = () => {
           />
         </div>
 
-        {/* DESCRIPTION */}
+        
         <div>
           <label className="block text-sm font-medium mb-2">
             Description *
@@ -127,7 +127,7 @@ const AddMenu = () => {
           />
         </div>
 
-        {/* CATEGORY */}
+       
         <div>
           <label className="block text-sm font-medium mb-2">
             Category *
@@ -148,7 +148,7 @@ const AddMenu = () => {
           </select>
         </div>
 
-        {/* IMAGE */}
+       
         <div>
           <label className="block text-sm font-medium mb-2">
             Image *
@@ -173,7 +173,7 @@ const AddMenu = () => {
           </label>
         </div>
 
-        {/* PREVIEW */}
+       
         {preview && (
           <img
             src={preview}
@@ -182,7 +182,6 @@ const AddMenu = () => {
           />
         )}
 
-        {/* SUBMIT */}
         <button className="bg-orange-500 text-white py-3">
           {loading ? "Adding..." : "Add Menu"}
         </button>

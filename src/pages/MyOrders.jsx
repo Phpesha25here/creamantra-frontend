@@ -25,7 +25,7 @@ const MyOrders = () => {
     fetchMyOrders();
   }, []);
 
-  // ===================== INVOICE =====================
+  
   const generateInvoice = (order) => {
     const invoiceContent = `
       <html>
@@ -161,7 +161,7 @@ const MyOrders = () => {
                 <img src="https://cdn-icons-png.flaticon.com/512/3075/3075977.png" />
                 <div>
                   <h2>Creamantra</h2>
-                  <small>Cafe & Restaurant</small>
+                  <small>Ice-Cream & Eatary Shop</small>
                 </div>
               </div>
 

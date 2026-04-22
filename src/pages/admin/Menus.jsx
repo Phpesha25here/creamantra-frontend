@@ -18,7 +18,7 @@ const Menus = () => {
       if (data?.success) {
         toast.success(data.message);
 
-        // instant UI update (no delay, no duplicate calls)
+        
         setMenus((prev) => prev.filter((item) => item._id !== id));
       } else {
         toast.error(data?.message || "Delete failed");

@@ -54,13 +54,14 @@ const BookTable = () => {
       return toast.error("Invalid phone number");
     }
 
-    const emailRegex = /^[A-Za-z0-9]+@gmail\.com$/;
+    const emailRegex = /^[A-Za-z0-9]+(\.[A-Za-z0-9]+){0,2}@[A-Za-z0-9]+(\.[A-Za-z0-9]+){1,2}$/;
+
     if ((email.match(/@/g) || []).length !== 1) {
-      return toast.error("Invalid email");
+      return toast.error("Please enter valid email");
     }
 
     if (!emailRegex.test(email)) {
-      return toast.error("Invalid email format");
+      return toast.error("Please enter valid email");
     }
 
     if (membersCount < 1 || membersCount > 10) {
