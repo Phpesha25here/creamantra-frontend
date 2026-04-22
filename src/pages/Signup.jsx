@@ -3,10 +3,9 @@ import { Link } from "react-router-dom";
 import { LockIcon, MailIcon, User2Icon } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { AppContext } from "../context/AppContext";
-import axios from "axios";
 
 const Signup = () => {
-  const { navigate, loading, setLoading } = useContext(AppContext);
+  const { navigate, loading, setLoading, axios } = useContext(AppContext);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -21,7 +20,6 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔥 NAME VALIDATION (ONLY LETTERS + SPACE)
     const nameRegex = /^[A-Za-z\s]+$/;
 
     if (!nameRegex.test(formData.name)) {
@@ -32,7 +30,7 @@ const Signup = () => {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "/api/auth/register",
         formData
       );
 
@@ -63,13 +61,13 @@ const Signup = () => {
     <div className="py-12 flex items-center justify-center">
       <form
         onSubmit={handleSubmit}
-        className="w-full sm:w-[350px] text-center border border-zinc-300/60 dark:border-zinc-700 rounded-2xl px-8 bg-white dark:bg-zinc-900"
+        className="w-full sm:w-[350px] text-center border border-zinc-300 rounded-2xl px-8 bg-white shadow-lg"
       >
-        <h1 className="text-zinc-900 dark:text-white text-3xl mt-10 font-medium">
+        <h1 className="text-zinc-900 text-3xl mt-10 font-medium">
           Register
         </h1>
 
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-2 pb-6">
+        <p className="text-zinc-500 text-sm mt-2 pb-6">
           Please sign up to continue
         </p>
 
@@ -83,7 +81,6 @@ const Signup = () => {
             value={formData.name}
             onChange={(e) => {
               const value = e.target.value;
-              // 🔥 allow only letters while typing
               if (/^[A-Za-z\s]*$/.test(value)) {
                 onChangeHandler(e);
               }
@@ -137,6 +134,7 @@ const Signup = () => {
             Login
           </Link>
         </p>
+
       </form>
     </div>
   );
