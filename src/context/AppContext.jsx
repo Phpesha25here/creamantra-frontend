@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -24,17 +23,24 @@ const AppContextProvider = ({ children }) => {
   const [cart, setCart] = useState({ items: [] });
   const [totalPrice, setTotalPrice] = useState(0);
 
- 
-  useEffect(() => {
+  const setAuthToken = (token) => {
+    if (token) {
+      localStorage.setItem("token", token);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      localStorage.removeItem("token");
+      delete axios.defaults.headers.common["Authorization"];
+      delete axios.defaults.headers.common["authorization"];
+    }
+  };
+
+  const loadToken = () => {
     const token = localStorage.getItem("token");
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    } else {
-      delete axios.defaults.headers.common["Authorization"];
     }
-  }, []);
+  };
 
-  
   const isAuth = async () => {
     try {
       const { data } = await axios.get("/api/auth/me");
@@ -54,12 +60,10 @@ const AppContextProvider = ({ children }) => {
     }
   };
 
-
   const logout = async () => {
     try {
       await axios.post("/api/auth/logout");
-      localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"];
+      setAuthToken(null);
       setUser(null);
       setAdmin(false);
       setCart({ items: [] });
@@ -84,9 +88,7 @@ const AppContextProvider = ({ children }) => {
     }
   };
 
-
   const addToCart = async (menuId) => {
-    // 🔒 Stop if not logged in
     if (!user) {
       if (!toast.isActive("login-error")) {
         toast.error("Please login first", { id: "login-error" });
@@ -106,12 +108,10 @@ const AppContextProvider = ({ children }) => {
       } else {
         toast.error(data.message);
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error("Something went wrong");
     }
   };
-
 
   const fetchCategories = async () => {
     try {
@@ -122,7 +122,6 @@ const AppContextProvider = ({ children }) => {
     }
   };
 
-
   const fetchMenus = async () => {
     try {
       const { data } = await axios.get("/api/menu/all");
@@ -132,15 +131,14 @@ const AppContextProvider = ({ children }) => {
     }
   };
 
-  
   useEffect(() => {
+    loadToken();
+
     const init = async () => {
       setLoadingAuth(true);
       try {
         await isAuth();
         await Promise.all([fetchCategories(), fetchMenus()]);
-      } catch (err) {
-        console.log(err);
       } finally {
         setLoadingAuth(false);
       }
@@ -153,7 +151,6 @@ const AppContextProvider = ({ children }) => {
     if (user) fetchCartData();
   }, [user]);
 
-
   useEffect(() => {
     const total = (cart?.items || []).reduce((sum, item) => {
       const price = item?.menuItem?.price || 0;
@@ -164,10 +161,7 @@ const AppContextProvider = ({ children }) => {
   }, [cart]);
 
   const cartCount =
-    cart?.items?.reduce(
-      (acc, item) => acc + (item.quantity || 0),
-      0
-    ) || 0;
+    cart?.items?.reduce((acc, item) => acc + (item.quantity || 0), 0) || 0;
 
   const value = {
     axios,
@@ -189,6 +183,7 @@ const AppContextProvider = ({ children }) => {
     totalPrice,
     addToCart,
     fetchCartData,
+    setAuthToken,
   };
 
   return (
