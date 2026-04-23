@@ -8,6 +8,16 @@ export const AppContext = createContext();
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.withCredentials = true;
 
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
 const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
 
@@ -26,18 +36,8 @@ const AppContextProvider = ({ children }) => {
   const setAuthToken = (token) => {
     if (token) {
       localStorage.setItem("token", token);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     } else {
       localStorage.removeItem("token");
-      delete axios.defaults.headers.common["Authorization"];
-      delete axios.defaults.headers.common["authorization"];
-    }
-  };
-
-  const loadToken = () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
   };
 
@@ -132,8 +132,6 @@ const AppContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    loadToken();
-
     const init = async () => {
       setLoadingAuth(true);
       try {

@@ -5,7 +5,8 @@ import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 
 const Login = () => {
-  const { navigate, setLoading, loading, setUser } = useContext(AppContext);
+  const { navigate, setLoading, loading, setUser, setAuthToken } =
+    useContext(AppContext);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -39,8 +40,7 @@ const Login = () => {
       setUser(data.user);
 
       if (data.token) {
-        localStorage.setItem("token", data.token);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
+        setAuthToken(data.token);
       }
 
       toast.success(data.message || "Login successful");
