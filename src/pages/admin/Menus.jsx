@@ -8,25 +8,25 @@ const Menus = () => {
   const [deletingId, setDeletingId] = useState(null);
 
   const deleteMenu = async (id) => {
-    if (deletingId) return;
+    if (deletingId === id) return;
 
     try {
       setDeletingId(id);
 
       const { data } = await axios.delete(`/api/menu/delete/${id}`);
 
-      if (data?.success) {
-        toast.success(data.message);
-
-        
-        setMenus((prev) => prev.filter((item) => item._id !== id));
-      } else {
+      if (!data?.success) {
         toast.error(data?.message || "Delete failed");
+        return;
       }
+
+      toast.success(data.message || "Deleted successfully");
+
+      setMenus((prev) => prev.filter((item) => item._id !== id));
     } catch (error) {
-      if (error.response?.status !== 404) {
-        toast.error(error.response?.data?.message || "Delete failed");
-      }
+      toast.error(
+        error.response?.data?.message || "Something went wrong"
+      );
     } finally {
       setDeletingId(null);
     }

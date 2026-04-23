@@ -18,11 +18,9 @@ const AddMenu = () => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
- 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -38,14 +36,12 @@ const AddMenu = () => {
     }
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       setLoading(true);
 
- 
       const sendData = new FormData();
       sendData.append("name", formData.name);
       sendData.append("price", formData.price);
@@ -55,22 +51,19 @@ const AddMenu = () => {
 
       const { data } = await axios.post("/api/menu/add", sendData);
 
-      if (data?.success) {
-        toast.success(data.message);
-
-        await fetchMenus();
-
-        navigate("/admin/menus");
-      } else {
-        toast.error(data.message || "Failed to add menu");
+      if (!data?.success) {
+        toast.error(data?.message || "Failed to add menu");
+        return;
       }
-    } catch (error) {
-      const message =
-        error?.response?.data?.message ||
-        error.message ||
-        "Something went wrong";
 
-      toast.error(message);
+      toast.success(data.message || "Menu added successfully");
+
+      await fetchMenus();
+      navigate("/admin/menus");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
@@ -82,7 +75,6 @@ const AddMenu = () => {
         onSubmit={handleSubmit}
         className="max-w-2xl w-full flex flex-col gap-5"
       >
-        
         <div>
           <label className="block text-sm font-medium mb-2">
             Menu Name *
@@ -97,7 +89,6 @@ const AddMenu = () => {
           />
         </div>
 
-        
         <div>
           <label className="block text-sm font-medium mb-2">
             Menu Price *
@@ -112,7 +103,6 @@ const AddMenu = () => {
           />
         </div>
 
-        
         <div>
           <label className="block text-sm font-medium mb-2">
             Description *
@@ -127,7 +117,6 @@ const AddMenu = () => {
           />
         </div>
 
-       
         <div>
           <label className="block text-sm font-medium mb-2">
             Category *
@@ -148,7 +137,6 @@ const AddMenu = () => {
           </select>
         </div>
 
-       
         <div>
           <label className="block text-sm font-medium mb-2">
             Image *
@@ -173,7 +161,6 @@ const AddMenu = () => {
           </label>
         </div>
 
-       
         {preview && (
           <img
             src={preview}
