@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 
 export const AppContext = createContext();
 
-axios.defaults.baseURL = "https://creamantra-backend.onrender.com";
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.withCredentials = true;
 
 const AppContextProvider = ({ children }) => {
