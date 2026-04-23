@@ -8,7 +8,7 @@ const MyBookings = () => {
 
   const fetchBookings = async () => {
     try {
-      const { data } = await axios.get("/api/bookings/my-bookings");
+      const { data } = await axios.get("/api/bookings/my");
       if (data.success) {
         setBookings(data.bookings);
       }
