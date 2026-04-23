@@ -37,7 +37,6 @@ const BookTable = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (loading) return;
 
     const { name, email, phone, members, date, time } = formData;
@@ -45,50 +44,41 @@ const BookTable = () => {
     const membersCount = Number(members);
 
     const nameRegex = /^[A-Za-z\s]+$/;
-    if (!nameRegex.test(name)) {
-      return toast.error("Invalid name");
-    }
+    if (!nameRegex.test(name)) return toast.error("Invalid name");
 
     const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(phone)) {
-      return toast.error("Invalid phone number");
-    }
+    if (!phoneRegex.test(phone)) return toast.error("Invalid phone number");
 
     const emailRegex = /^[A-Za-z0-9]+(\.[A-Za-z0-9]+){0,2}@[A-Za-z0-9]+(\.[A-Za-z0-9]+){1,2}$/;
+    if ((email.match(/@/g) || []).length !== 1) return toast.error("Please enter valid email");
+    if (!emailRegex.test(email)) return toast.error("Please enter valid email");
 
-    if ((email.match(/@/g) || []).length !== 1) {
-      return toast.error("Please enter valid email");
-    }
-
-    if (!emailRegex.test(email)) {
-      return toast.error("Please enter valid email");
-    }
-
-    if (membersCount < 1 || membersCount > 10) {
-      return toast.error("Members must be 1 to 10");
-    }
+    if (membersCount < 1 || membersCount > 10) return toast.error("Members must be 1 to 10");
 
     const today = new Date();
     const selectedDate = new Date(date);
     today.setHours(0, 0, 0, 0);
-
-    if (selectedDate < today) {
-      return toast.error("Invalid date");
-    }
+    if (selectedDate < today) return toast.error("Invalid date");
 
     const [hours] = time.split(":").map(Number);
-    if (hours >= 23) {
-      return toast.error("Invalid time");
-    }
+    if (hours >= 23) return toast.error("Invalid time");
 
     try {
       setLoading(true);
 
-      const { data } = await axios.post("/api/bookings", formData);
+      const token = localStorage.getItem("token");
 
-      if (!data.success) {
-        throw new Error(data.message);
-      }
+      const { data } = await axios.post(
+        "/api/bookings",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!data.success) throw new Error(data.message);
 
       toast.success("Booking successful");
       resetForm();
@@ -107,71 +97,14 @@ const BookTable = () => {
         </h2>
 
         <form onSubmit={handleSubmit} className="grid gap-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Your Name"
-            value={formData.name}
-            onChange={handleChange}
-            className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg"
-          />
-
-          <input
-            type="text"
-            name="email"
-            placeholder="Your Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg"
-          />
-
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleChange}
-            className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg"
-          />
-
-          <input
-            type="number"
-            name="members"
-            placeholder="Number of Members"
-            value={formData.members}
-            onChange={handleChange}
-            className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg"
-          />
-
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg"
-          />
-
-          <input
-            type="time"
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg"
-          />
-
-          <textarea
-            name="message"
-            placeholder="Special Requests"
-            value={formData.message}
-            onChange={handleChange}
-            className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg"
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition disabled:opacity-60"
-          >
+          <input type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg" />
+          <input type="text" name="email" placeholder="Your Email" value={formData.email} onChange={handleChange} className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg" />
+          <input type="text" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg" />
+          <input type="number" name="members" placeholder="Number of Members" value={formData.members} onChange={handleChange} className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg" />
+          <input type="date" name="date" value={formData.date} onChange={handleChange} className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg" />
+          <input type="time" name="time" value={formData.time} onChange={handleChange} className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg" />
+          <textarea name="message" placeholder="Special Requests" value={formData.message} onChange={handleChange} className="border border-orange-200 focus:border-orange-500 outline-none p-3 rounded-lg" />
+          <button type="submit" disabled={loading} className="bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition disabled:opacity-60">
             {loading ? "Booking..." : "Confirm Booking"}
           </button>
         </form>

@@ -24,6 +24,7 @@ const AppContextProvider = ({ children }) => {
   const [cart, setCart] = useState({ items: [] });
   const [totalPrice, setTotalPrice] = useState(0);
 
+ 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -33,6 +34,7 @@ const AppContextProvider = ({ children }) => {
     }
   }, []);
 
+  
   const isAuth = async () => {
     try {
       const { data } = await axios.get("/api/auth/me");
@@ -51,6 +53,7 @@ const AppContextProvider = ({ children }) => {
       setAdmin(false);
     }
   };
+
 
   const logout = async () => {
     try {
@@ -81,7 +84,16 @@ const AppContextProvider = ({ children }) => {
     }
   };
 
+
   const addToCart = async (menuId) => {
+    // 🔒 Stop if not logged in
+    if (!user) {
+      if (!toast.isActive("login-error")) {
+        toast.error("Please login first", { id: "login-error" });
+      }
+      return;
+    }
+
     try {
       const { data } = await axios.post("/api/cart/add", {
         menuId,
@@ -94,10 +106,12 @@ const AppContextProvider = ({ children }) => {
       } else {
         toast.error(data.message);
       }
-    } catch {
-      toast.error("Please login first");
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
     }
   };
+
 
   const fetchCategories = async () => {
     try {
@@ -108,6 +122,7 @@ const AppContextProvider = ({ children }) => {
     }
   };
 
+
   const fetchMenus = async () => {
     try {
       const { data } = await axios.get("/api/menu/all");
@@ -117,6 +132,7 @@ const AppContextProvider = ({ children }) => {
     }
   };
 
+  
   useEffect(() => {
     const init = async () => {
       setLoadingAuth(true);
@@ -136,6 +152,7 @@ const AppContextProvider = ({ children }) => {
   useEffect(() => {
     if (user) fetchCartData();
   }, [user]);
+
 
   useEffect(() => {
     const total = (cart?.items || []).reduce((sum, item) => {
