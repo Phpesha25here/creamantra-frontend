@@ -4,7 +4,7 @@ import { CircleX } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Menus = () => {
-  const { menus, setMenus, axios } = useContext(AppContext);
+  const { menus = [], setMenus, axios } = useContext(AppContext);
   const [deletingId, setDeletingId] = useState(null);
 
   const deleteMenu = async (id) => {
@@ -15,17 +15,19 @@ const Menus = () => {
 
       const { data } = await axios.delete(`/api/menu/delete/${id}`);
 
-      if (!data?.success) {
+      if (data?.success) {
+        toast.success(data.message || "Deleted successfully");
+
+        setMenus((prev) =>
+          prev.filter((item) => item._id !== id)
+        );
+      } else {
         toast.error(data?.message || "Delete failed");
-        return;
       }
-
-      toast.success(data.message || "Deleted successfully");
-
-      setMenus((prev) => prev.filter((item) => item._id !== id));
     } catch (error) {
+      console.error(error);
       toast.error(
-        error.response?.data?.message || "Something went wrong"
+        error?.response?.data?.message || "Something went wrong"
       );
     } finally {
       setDeletingId(null);
@@ -48,33 +50,37 @@ const Menus = () => {
         <hr className="w-full my-4 text-gray-200" />
 
         <ul>
-          {menus.map((item) => (
-            <div key={item._id}>
-              <div className="grid grid-cols-5 items-center mb-4">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-20 h-20 object-cover"
-                />
-                <p>{item.name}</p>
-                <p>{item?.category?.name}</p>
-                <p>₹{item.price}</p>
+          {menus.length > 0 ? (
+            menus.map((item) => (
+              <div key={item._id}>
+                <div className="grid grid-cols-5 items-center mb-4">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-20 h-20 object-cover"
+                  />
+                  <p>{item.name}</p>
+                  <p>{item?.category?.name || "No Category"}</p>
+                  <p>₹{item.price}</p>
 
-                <button
-                  disabled={deletingId === item._id}
-                  onClick={() => deleteMenu(item._id)}
-                  className={`${
-                    deletingId === item._id
-                      ? "opacity-50 cursor-not-allowed"
-                      : "text-red-600 cursor-pointer"
-                  }`}
-                >
-                  <CircleX />
-                </button>
+                  <button
+                    disabled={deletingId === item._id}
+                    onClick={() => deleteMenu(item._id)}
+                    className={`${
+                      deletingId === item._id
+                        ? "opacity-50 cursor-not-allowed"
+                        : "text-red-600 cursor-pointer"
+                    }`}
+                  >
+                    <CircleX />
+                  </button>
+                </div>
+                <hr />
               </div>
-              <hr />
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-gray-500">No menus found</p>
+          )}
         </ul>
       </div>
     </div>
