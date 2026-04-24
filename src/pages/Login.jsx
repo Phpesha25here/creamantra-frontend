@@ -13,6 +13,7 @@ const Login = () => {
     password: "",
   });
 
+  // Handle input
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -20,38 +21,35 @@ const Login = () => {
     }));
   };
 
+  // Handle login
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       setLoading(true);
 
-      const { data } = await axios.post(
-        "https://creamantra-backend.onrender.com/api/auth/login",
-        formData,
-        { withCredentials: true }
-      );
+
+      const { data } = await axios.post("/api/auth/login", formData);
 
       if (!data?.success) {
         toast.error(data?.message || "Login failed");
         return;
       }
 
-      setUser(data.user);
-
-      if (data.token) {
-        setAuthToken(data.token);
+  
+      if (!data.token) {
+        toast.error("Token not received from server");
+        return;
       }
 
-      toast.success(data.message || "Login successful");
+      setAuthToken(data.token); 
+      setUser(data.user);       
 
-      setTimeout(() => {
-        if (data.user?.isAdmin) {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
-      }, 100);
+      toast.success("Login successful");
+
+      // Redirect
+      navigate(data.user?.isAdmin ? "/admin" : "/");
+
     } catch (err) {
       toast.error(err.response?.data?.message || "Server error");
     } finally {
