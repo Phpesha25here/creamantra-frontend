@@ -13,6 +13,7 @@ axios.defaults.withCredentials = true;
 let isInterceptorSet = false;
 
 if (!isInterceptorSet) {
+  // ✅ REQUEST INTERCEPTOR (attach token)
   axios.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -21,19 +22,30 @@ if (!isInterceptorSet) {
     return config;
   });
 
+  // ✅ RESPONSE INTERCEPTOR (clean error handling)
   axios.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error.response) {
-        if (error.response.status !== 404) {
+        const status = error.response.status;
+
+        // ❌ IGNORE 401 + 404 (no spam toast)
+        if (status !== 401 && status !== 404) {
           toast.error(
             error.response.data?.message || "Something went wrong",
             { id: "api-error" }
           );
         }
+
+        // 🔥 OPTIONAL: auto logout on token expiry
+        if (status === 401) {
+          localStorage.removeItem("token");
+        }
+
       } else {
         toast.error("Network error", { id: "api-error" });
       }
+
       return Promise.reject(error);
     }
   );
@@ -57,6 +69,7 @@ const AppContextProvider = ({ children }) => {
   const [cart, setCart] = useState({ items: [] });
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // ---------------- TOKEN ----------------
   const setAuthToken = (token) => {
     if (token) localStorage.setItem("token", token);
     else localStorage.removeItem("token");
@@ -65,7 +78,17 @@ const AppContextProvider = ({ children }) => {
   // ---------------- AUTH ----------------
   const isAuth = async () => {
     try {
+      const token = localStorage.getItem("token");
+
+      // 🚫 STOP if no token (prevents 401 error)
+      if (!token) {
+        setUser(null);
+        setAdmin(false);
+        return;
+      }
+
       const { data } = await axios.get("/api/auth/me");
+
       if (data?.success) {
         setUser(data.user);
         setAdmin(
@@ -75,6 +98,7 @@ const AppContextProvider = ({ children }) => {
         setUser(null);
         setAdmin(false);
       }
+
     } catch {
       setUser(null);
       setAdmin(false);
@@ -142,7 +166,6 @@ const AppContextProvider = ({ children }) => {
     try {
       const { data } = await axios.get("/api/menu/all");
 
-      // FIX: handle different backend responses safely
       setMenus(
         data?.menuItems ||
         data?.menus ||
@@ -160,11 +183,15 @@ const AppContextProvider = ({ children }) => {
       setLoadingAuth(true);
       try {
         await isAuth();
-        await Promise.all([fetchCategories(), fetchMenus()]);
+        await Promise.all([
+          fetchCategories(),
+          fetchMenus()
+        ]);
       } finally {
         setLoadingAuth(false);
       }
     };
+
     init();
   }, []);
 
@@ -177,11 +204,15 @@ const AppContextProvider = ({ children }) => {
       const price = item?.menuItem?.price || 0;
       return sum + price * (item.quantity || 0);
     }, 0);
+
     setTotalPrice(total);
   }, [cart]);
 
   const cartCount =
-    cart?.items?.reduce((acc, item) => acc + (item.quantity || 0), 0) || 0;
+    cart?.items?.reduce(
+      (acc, item) => acc + (item.quantity || 0),
+      0
+    ) || 0;
 
   // ---------------- CONTEXT VALUE ----------------
   const value = {
@@ -197,7 +228,7 @@ const AppContextProvider = ({ children }) => {
     logout,
     categories,
     menus,
-    setMenus, // ✅ FIXED (important)
+    setMenus,
     fetchMenus,
     fetchCategories,
     cart,
